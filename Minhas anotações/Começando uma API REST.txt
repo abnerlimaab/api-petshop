@@ -1,0 +1,81 @@
+Pacotes utilizados
+    npm install express
+    npm install body-parser
+    npm install sequelize
+    npm install mysql2
+    npm install config
+
+O método listen recebe a porta que o servidor irá escutar e uma função de callback
+Ex: app.listen(3000, () => console.log('A API está funcionando'))
+
+Nossa API utilizará o formato JSON
+Ex: app.use(express.json())
+
+No arquivo "./config/default.js" concentramos as configurações da API e assim poderemos acessá-las no Index da nossa API e do Banco de dados
+Ex. "./config/default.js"
+    {
+        "mysql": {
+            "banco-de-dados": "petshop",
+            "usuario": "root",
+            "senha": "123456",
+            "host":"127.0.0.1"
+        },
+        "api": {
+            "porta": 3000
+        }
+    }
+
+As configurações são acessadas através do import do pacote config, então utilizamos o método get.
+Ex: "indes.js"
+    config.get('api.porta')
+
+* Criando rotas
+As rotas serão criadas através do método Router do express...
+Ex:
+    const roteador = require('express').Router()
+
+...e então exportada como uma função...
+Ex:
+    module.exports = roteador
+
+...reduzindo o código no index da API
+Ex:
+    app.use('/api/fornecedores', roteador)
+
+* Configurando o banco de dados através do Sequelize
+Neste exemplo, criamos inicialmente o arquivo './rotas/fornecedores/ModeloTabelaFornecedor.js'
+Nele listamos as configurações da nossa tabela, segue o exemplo:
+
+    //Campos a serem criados
+    const colunas = {
+        empresa: {
+            type: Sequelize.STRING, //Utilizamos a bibliotaca do Sequelize para definião do tipo
+            allowNull: false //Aqui, bloqueamos valores nulos
+        },
+        email: {
+            type: Sequelize.STRING,
+            allowNull: false
+        },
+        categoria: {
+            type: Sequelize.ENUM('ração', 'brinquedos'), //O tipo ENUM nos permite ENUMerar as opções que serão aceitas pelo nosso banco
+            allowNull: false
+        }
+    }
+
+    //Propriedades da tabela
+    const opcoes = {
+        FreezeTableName: true, //Congela o nome da tabela
+        TableName: 'fornecedores', //Nomeia a tabela
+        timestamps: true, //Habilita as informações padrão de data da tabela (em inglês)
+        createdAt: 'dataCriacao', //renomeia o campo
+        updateAt: 'dataAtualizacao', //renomeia o campo
+        version: 'versao' //Cria o campo versao da tabela
+    }
+
+Então, exportaremos as configurações através de uma instância do nosso banco de dados.
+A instância foi definida como:
+
+E a exportaremos desta maneira
+    module.exports = Instancia.define('fornecedor', colunas, opcoes) //coluna e opcoes são os objetos que definimos anteriormente
+
+* Cunsumindo a tabela criada
