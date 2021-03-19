@@ -15,6 +15,8 @@ class Fornecedor {
 
     //Encaminha as informações para persistência no Banco de dados
     async criar() {
+        //Verifica se o objeto recebido é do tipo string e não está vazio
+        this.validar()
         //Aguarda e retorna o insert no banco de dados com base nas informações já conhecidas que foram extraidas da requisição do cliente pelo construtor
         const resultado = await TabelaFornecedor.inserir({
             empresa: this.empresa,
@@ -59,6 +61,20 @@ class Fornecedor {
         }
 
         await TabelaFornecedor.atualizar(this.id, dadosParaAtualizar)        
+    }
+
+    remover() {
+        return TabelaFornecedor.remover(this.id)
+    }
+
+    validar() {
+        const campos = ['empresa', 'email', 'categoria']
+        campos.forEach(campo => {
+            const valor = this[campo]
+            if (typeof valor !== 'string' || valor.length === 0) {
+                throw new Error(`O campo ${campo} está inválido`)
+            }
+        })
     }
 }
 

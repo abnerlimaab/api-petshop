@@ -7,19 +7,28 @@ const Fornecedor = require('./Fornecedor')
 //Retorna a lista de fornecedores cadastrados
 roteador.get('/', async (req, res) => {
     const resultados = await TabelaForecedor.listar()
+    res.status(200)
     res.send(JSON.stringify(resultados))
 })
 
 //Realiza o cadastro de Fornecedores
 roteador.post('/', async (req, res) => {
-    //Acessa os dados enviados pelo cliente
-    const dadosRecebidos = req.body
-    //Cria uma nova instância de Fornecedor com os dados recebidos na requisição
-    const fornecedor = new Fornecedor(dadosRecebidos)
-    //Encaminha as informações para persistência no Banco de dados
-    await fornecedor.criar()
-    //Após insert, encaminha o fornecedor cadastrado como resposta para o cliente
-    res.send(JSON.stringify(fornecedor))
+    try {
+        //Acessa os dados enviados pelo cliente
+        const dadosRecebidos = req.body
+        //Cria uma nova instância de Fornecedor com os dados recebidos na requisição
+        const fornecedor = new Fornecedor(dadosRecebidos)
+        //Encaminha as informações para persistência no Banco de dados
+        await fornecedor.criar()
+        //Após insert, encaminha o fornecedor cadastrado como resposta para o cliente
+        res.status(201)
+        res.send(JSON.stringify(fornecedor))
+    } catch (erro) {
+        res.status(400)
+        res.send(JSON.stringify({
+            mensagem: erro.message
+        }))
+    }
 })
 
 //Retorna um fornecedor cadastrado por id
@@ -32,9 +41,11 @@ roteador.get('/:idFornecedor', async (req, res) => {
         //Realiza a busca no banco de dados com base no id passado no construtor
         await fornecedor.carregar()
         //Envia o resultado para o cliente
+        res.status(200)
         res.send(JSON.stringify(fornecedor))
     } catch (erro) {
         //Encaminha a mensagem de erro para o cliente
+        res.status(404)
         res.send(JSON.stringify({
             mensagem: erro.message
         }))
@@ -52,13 +63,31 @@ roteador.put("/:idFornecedor", async (req, res) => {
         //Instancia um Fornecedor
         const fornecedor = new Fornecedor(dados)
         await fornecedor.atualizar()
+        res.status(204)
         res.end()
         } catch (erro) {
+            res.status(400)
             res.send(JSON.stringify({
                 mensagem: erro.message
             }))
         }
     }
 )
+
+roteador.delete('/:idFornecedor', async (req, res) => {
+    try {
+        const id = req.params.idFornecedor
+        const fornecedor = new Fornecedor({id: id})
+        await fornecedor.carregar()
+        await fornecedor.remover()
+        res.status(204)
+        res.end()
+    } catch (erro) {
+        res.status(404)
+        res.send(JSON.stringify({
+            mensagem: erro.message
+        }))
+    }
+})
 
 module.exports = roteador
