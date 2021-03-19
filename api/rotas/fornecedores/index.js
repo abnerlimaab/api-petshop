@@ -12,7 +12,7 @@ roteador.get('/', async (req, res) => {
 })
 
 //Realiza o cadastro de Fornecedores
-roteador.post('/', async (req, res) => {
+roteador.post('/', async (req, res, proximo) => {
     try {
         //Acessa os dados enviados pelo cliente
         const dadosRecebidos = req.body
@@ -24,15 +24,12 @@ roteador.post('/', async (req, res) => {
         res.status(201)
         res.send(JSON.stringify(fornecedor))
     } catch (erro) {
-        res.status(400)
-        res.send(JSON.stringify({
-            mensagem: erro.message
-        }))
+        proximo(erro)
     }
 })
 
 //Retorna um fornecedor cadastrado por id
-roteador.get('/:idFornecedor', async (req, res) => {
+roteador.get('/:idFornecedor', async (req, res, proximo) => {
     try {
         //Recebe o id passado como parâmetro na URL
         const id = req.params.idFornecedor
@@ -44,15 +41,11 @@ roteador.get('/:idFornecedor', async (req, res) => {
         res.status(200)
         res.send(JSON.stringify(fornecedor))
     } catch (erro) {
-        //Encaminha a mensagem de erro para o cliente
-        res.status(404)
-        res.send(JSON.stringify({
-            mensagem: erro.message
-        }))
+        proximo(erro)
     }
 })
 
-roteador.put("/:idFornecedor", async (req, res) => {
+roteador.put("/:idFornecedor", async (req, res, proximo) => {
     try {
         //Recebe o id passado como parâmetro pela URL
         const id = req.params.idFornecedor
@@ -66,15 +59,12 @@ roteador.put("/:idFornecedor", async (req, res) => {
         res.status(204)
         res.end()
         } catch (erro) {
-            res.status(400)
-            res.send(JSON.stringify({
-                mensagem: erro.message
-            }))
-        }
+            proximo(erro)
+        }   
     }
 )
 
-roteador.delete('/:idFornecedor', async (req, res) => {
+roteador.delete('/:idFornecedor', async (req, res, proximo) => {
     try {
         const id = req.params.idFornecedor
         const fornecedor = new Fornecedor({id: id})
@@ -83,10 +73,7 @@ roteador.delete('/:idFornecedor', async (req, res) => {
         res.status(204)
         res.end()
     } catch (erro) {
-        res.status(404)
-        res.send(JSON.stringify({
-            mensagem: erro.message
-        }))
+        proximo(erro)
     }
 })
 

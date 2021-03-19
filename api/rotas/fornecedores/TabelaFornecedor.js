@@ -1,4 +1,5 @@
 const Modelo = require('./ModeloTabelaFornecedor')
+const NaoEncontrado = require('../../erros/NaoEncontrado')
 
 module.exports = {
     listar() {
@@ -18,7 +19,7 @@ module.exports = {
         })
         //Se o fornecedor não for encontrado retorna erro
         if(!encontrado) {
-            throw new Error('Fornecedor não encontrado')
+            throw new NaoEncontrado()
         }
         //Retorna o resultado da busca
         return encontrado
