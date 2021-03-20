@@ -4,6 +4,7 @@ Pacotes utilizados
     npm install sequelize
     npm install mysql2
     npm install config
+    npm install jsontoxml
 
 O método listen recebe a porta que o servidor irá escutar e uma função de callback
 Ex: app.listen(3000, () => console.log('A API está funcionando'))

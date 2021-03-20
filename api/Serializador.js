@@ -1,4 +1,6 @@
+const { application } = require('express')
 const ValorNaoSuportado = require('./erros/ValorNaoSuportado')
+const jsontoxml = require('jsontoxml')
 
 class Serializador {
     json(dados) {
@@ -6,11 +8,34 @@ class Serializador {
         return JSON.stringify(dados)
     }
 
+    xml(dados) {
+        let tag = this.tagSingular
+        //Se for um Array, passaremos primeiramente a tag no plural
+        if (Array.isArray(dados)) {
+            tag = this.tagPlural
+            //Através do método map, conseguimos executar a função para cada item da lista e então criar uma nova lista com os resultados obtidos
+            dados = dados.map(item => {
+                return {
+                    [this.tagSingular]: item
+                }
+            })
+        }
+        //Converte os dados em xml. Toda classe que tiver a variável tag será lançada como argumento da função
+        return jsontoxml({[tag]: dados})
+    }
+
     serializar(dados) {
+        //Realiza o filtro de dados mantendo apenas os campos públicos
+        dados = this.filtrar(dados)
         //Se o conteúdo recebido for do tipo json
         if (this.contentType === 'application/json') {
             //Retornaremos os campos publicos da instância em jsonn
-            return this.json(this.filtrar(dados))
+            return this.json(dados)
+        }
+        //Se o conteúdo recebido for do tipo xml
+        if (this.contentType === 'application/xml') {
+            //Retornaremos os campos públicos em xml
+            return this.xml(dados)
         }
         //Retorna erro caso o formato não seja suportado
         throw new ValorNaoSuportado(this.contentType)
@@ -41,15 +66,31 @@ class Serializador {
 }
 
 class SerializadorFornecedor extends Serializador {
-    constructor(contentType) {
+    constructor(contentType, camposExtras) {
         super()
         this.contentType = contentType
-        this.camposPublicos = ['id', 'empresa', 'categoria']
+        this.camposPublicos = ['id', 'empresa', 'categoria'].concat(camposExtras || [])
+        //Atributo utilizado na conversão para XML
+        this.tagSingular = 'fornecedor'
+        this.tagPlural = 'fornecedores'
+    }
+}
+
+class SerializadorErro extends Serializador {
+    constructor(contentType, camposExtras) {
+        super()
+        this.contentType = contentType
+        this.camposPublicos = ['id', 'mensagem'].concat(camposExtras || [])
+        //Atributo utilizado na conversão para XML
+        this.tagSingular = 'erro'
+        this.tagPlural = 'erros'
     }
 }
 
 module.exports = {
     Serializador: Serializador,
     SerializadorFornecedor: SerializadorFornecedor,
-    formatosAceitos: ['application/json']
+    SerializadorErro: SerializadorErro,
+    //Define os formatos que serão aceitos
+    formatosAceitos: ['application/json', 'application/xml']
 }
