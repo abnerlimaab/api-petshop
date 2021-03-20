@@ -1,6 +1,7 @@
 const roteador = require('express').Router()
 const TabelaForecedor = require('./TabelaFornecedor')
 const Fornecedor = require('./Fornecedor')
+const SerializadorFornecedor = require('../../Serializador').SerializadorFornecedor
 
 //Para identificação das rotas, utilizaremos os mesmos métodos http
 
@@ -8,7 +9,8 @@ const Fornecedor = require('./Fornecedor')
 roteador.get('/', async (req, res) => {
     const resultados = await TabelaForecedor.listar()
     res.status(200)
-    res.send(JSON.stringify(resultados))
+    const serializador = new SerializadorFornecedor(res.getHeader('Content-Type'))
+    res.send(serializador.serializar(resultados))
 })
 
 //Realiza o cadastro de Fornecedores
@@ -22,7 +24,8 @@ roteador.post('/', async (req, res, proximo) => {
         await fornecedor.criar()
         //Após insert, encaminha o fornecedor cadastrado como resposta para o cliente
         res.status(201)
-        res.send(JSON.stringify(fornecedor))
+        const serializador = new SerializadorFornecedor(res.getHeader('Content-Type'))
+        res.send(serializador.serializar(fornecedor))
     } catch (erro) {
         proximo(erro)
     }
@@ -39,7 +42,8 @@ roteador.get('/:idFornecedor', async (req, res, proximo) => {
         await fornecedor.carregar()
         //Envia o resultado para o cliente
         res.status(200)
-        res.send(JSON.stringify(fornecedor))
+        const serializador = new SerializadorFornecedor(res.getHeader('Content-Type'))
+        res.send(serializador.serializar(fornecedor))
     } catch (erro) {
         proximo(erro)
     }

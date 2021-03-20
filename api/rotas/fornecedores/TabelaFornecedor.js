@@ -3,7 +3,8 @@ const NaoEncontrado = require('../../erros/NaoEncontrado')
 
 module.exports = {
     listar() {
-        return Modelo.findAll()
+        //O objeto raw define que o método findAll retornará dados puros, sem o parâmetro, seria retornadas instâncias do Sequelize.
+        return Modelo.findAll({raw: true})
     },
 
     inserir(fornecedor) {
