@@ -84,4 +84,9 @@ roteador.delete('/:idFornecedor', async (req, res, proximo) => {
     }
 })
 
+//Importa o index de produtos
+const roteadorProdutos = require('./produtos')
+//Cria a rota de produtos informando a URL e o roteadorr do produtos
+roteador.use('/:idFornecedor/produtos', roteadorProdutos)
+
 module.exports = roteador
