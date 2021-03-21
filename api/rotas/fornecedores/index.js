@@ -86,7 +86,26 @@ roteador.delete('/:idFornecedor', async (req, res, proximo) => {
 
 //Importa o index de produtos
 const roteadorProdutos = require('./produtos')
-//Cria a rota de produtos informando a URL e o roteadorr do produtos
-roteador.use('/:idFornecedor/produtos', roteadorProdutos)
+
+const verificarFornecedor = async (req, res, proximo) => {
+    try {
+        //Pega o id do fornecidor pelo objeto da requisição
+        const id = req.params.idFornecedor
+        //Cria uma instância do fornecedor somente com o id
+        const fornecedor = new Fornecedor({id: id})
+        //Verifica se o fornecedor existe no banco de dados
+        await fornecedor.carregar()
+        //Insere o fornecedor encontrado dentro do objeto da requisição
+        req.fornecedor = fornecedor
+        //Caso o fornecedor seja encontrado, segue para o próximo middleware
+        proximo()
+    } catch (erro) {
+        //Caso a função carregar retorne um erro, seguiremos para o middleware que realizará o tratamento
+        proximo(erro)
+    }
+}
+
+//Verifica so o fornecedor existe e cria a rota de produtos informando a URL e o roteadorr do produtos
+roteador.use('/:idFornecedor/produtos', verificarFornecedor, roteadorProdutos)
 
 module.exports = roteador

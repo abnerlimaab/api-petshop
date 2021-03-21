@@ -10,5 +10,20 @@ module.exports = {
                 fornecedor: idFornecedor
             }
         })
+    },
+
+    inserir(dados) {
+        //Recebemos um objeto com as propriedades [titulo, preco, estoque, fornecedor] e realizamos o insert em nosso banco de dados através do método create do Sequelize.
+        return Modelo.create(dados)
+    },
+
+    remover(idProduto, idFornecedor) {
+        //Recebemos o id do Produto e do Fornecedor e no método destroy do Sequelize passamos um WHERE com os parâmetros
+        return Modelo.destroy({
+            where: {
+                id: idProduto,
+                fornecedor: idFornecedor
+            }
+        })
     }
 }
