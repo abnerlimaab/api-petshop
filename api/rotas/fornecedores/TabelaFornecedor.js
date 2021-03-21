@@ -20,7 +20,7 @@ module.exports = {
         })
         //Se o fornecedor não for encontrado retorna erro
         if(!encontrado) {
-            throw new NaoEncontrado()
+            throw new NaoEncontrado('Fornecedor')
         }
         //Retorna o resultado da busca
         return encontrado

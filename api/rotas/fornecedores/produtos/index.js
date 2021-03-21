@@ -36,6 +36,11 @@ roteador.post('/', async (req, res, proximo) => {
             //Encaminha o Content-Type da resposta para o Serializador
             res.getHeader('Content-Type'),
         )
+        //Cabeçalhos da resposta
+        res.set('ETag', produto.versao)
+        const timestamp = (new Date(produto.dataAtualizacao)).getTime()
+        res.set('Last-Modified', timestamp)
+        res.set('Location', `/api/fornecedores/${produto.fornecedor}/produtos/${produto.id}`)
         //Encaminha o status de sucesso na resposta
         res.status(201)
         //Envia a resposta no formato solicitado através do método serializar
@@ -83,10 +88,39 @@ roteador.get('/:id', async (req, res, proximo) => {
             //Campos Extras solicitados
             ['preco', 'estoque', 'fornecedor', 'dataCriacao', 'dataAtualizacao', 'versao']
         )
+        //Cabeçalhos da resposta
+        res.set('ETag', produto.versao)
+        const timestamp = (new Date(produto.dataAtualizacao)).getTime()
+        res.set('Last-Modified', timestamp)
         //Envia a resposta no formato solicitado através do método serializar
         res.send(
             serializador.serializar(produto)
         )
+    } catch (erro) {
+        //Encaminha o erro para tratamento em nosso middleware da raiz da API
+        proximo(erro)
+    }
+})
+
+roteador.head('/:id', async (req, res, proximo) => {
+    try {
+        //Declaração de variáveis da requisição
+        const dados = {
+            //O id do produto será retirado do parâmetro da url da requisição
+            id: req.params.id,
+            //O fornecedor será retirado da instância de Fornecedor inclusa na requisição anteriormente
+            fornecedor: req.fornecedor.id
+        }
+        //Cria uma instância de produto com os dados retirados da requisição
+        const produto = new Produto(dados)
+        //Inclui na instância de produto os valores obtidos do banco de dados
+        await produto.carregar()
+        //Cabeçalhos da resposta
+        res.set('ETag', produto.versao)
+        const timestamp = (new Date(produto.dataAtualizacao)).getTime()
+        res.set('Last-Modified', timestamp)
+        res.status(200)
+        res.end()
     } catch (erro) {
         //Encaminha o erro para tratamento em nosso middleware da raiz da API
         proximo(erro)
@@ -110,6 +144,12 @@ roteador.put('/:id', async (req, res, proximo) => {
         const produto = new Produto(dados)
         //Atualiza o produto no banco de dados
         await produto.atualizar()
+        //Atualiza todos os campos da instância de produto
+        await produto.carregar()
+        //Cabeçalhos da resposta
+        res.set('ETag', produto.versao)
+        const timestamp = (new Date(produto.dataAtualizacao)).getTime()
+        res.set('Last-Modified', timestamp)
         //Define o status da resposta - No content
         res.status(204)
         //Encerra a requisição
@@ -132,6 +172,12 @@ roteador.post('/:id/diminuir-estoque', async (req, res, proximo) => {
         //Diminui o estoque conforme solicitado na requisição
         produto.estoque = produto.estoque - req.body.quantidade
         await produto,diminuirEstoque()
+        //Atualiza todos os campos da instância de produto
+        await produto.carregar()
+        //Cabeçalhos da resposta
+        res.set('ETag', produto.versao)
+        const timestamp = (new Date(produto.dataAtualizacao)).getTime()
+        res.set('Last-Modified', timestamp)
         //Resposta No-Content
         res.status(204)
         res.end()

@@ -1,6 +1,10 @@
 //Importa as funções declaradas na Tabela de Produtos (DAO)
 const Tabela = require('./TabelaProduto')
 
+//Importe de erros
+const DadosNaoFornecidos = require('../../../erros/DadosNaoFornecidos')
+const CampoInvalido = require('../../../erros/CampoInvalido')
+
 class Produto {
     //Separamos o objeto da requisição em variáveis na instância
     constructor({id, titulo, preco, estoque, fornecedor, dataCriacao, dataAtualizacao, versao}) {
@@ -17,11 +21,11 @@ class Produto {
     validar() {
         //O campo titulo deve ser do tipo string e não pode estar vazio
         if (typeof this.titulo !== 'string' || this.titulo.length === 0) {
-            throw new Error(`O campo titulo está inválido`)
+            throw new CampoInvalido(`titulo`)
         }
         //O campo preco deve ser do tipo number e maior que zero
         if (typeof this.preco !== 'number' || this.preco === 0) {
-            throw new Error(`O campo preco está inválido`)
+            throw new CampoInvalido(`preco`)
         }
     }
 
@@ -65,7 +69,7 @@ class Produto {
         if (typeof this.titulo === 'string' && this.titulo.length > 0) {
             dadosParaAtualizar.titulo = this.titulo
         }
-        if (typeof this.preco === 'number' && this.titulo.length > 0) {
+        if (typeof this.preco === 'number' && this.preco > 0) {
             dadosParaAtualizar.preco = this.preco
         }
         if (typeof this.estoque === 'number') {
@@ -73,7 +77,7 @@ class Produto {
         }
         //Caso dadosParaAtualizar esteja vazio, retornaremos um erro
         if (Object.keys(dadosParaAtualizar).length === 0) {
-            throw new Error('Não foram fornecidos dados para atualizar')
+            throw new DadosNaoFornecidos()
         }
 
         return Tabela.atualizar(

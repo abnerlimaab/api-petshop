@@ -3,6 +3,9 @@
 const Modelo = require('./ModeloTabelaProduto')
 const instancia = require('../../../banco-de-dados')
 
+//Importe de erros
+const NaoEncontrado = require('../../../erros/NaoEncontrado')
+
 module.exports = {
     listar(idFornecedor) {
         return Modelo.findAll({
@@ -42,7 +45,7 @@ module.exports = {
         })
         //Se o produto não for encontrado, retornaremos um erro
         if (!encontrado) {
-            throw new Error('Produto não foi encontrado!')
+            throw new NaoEncontrado('Produto')
         }
         //Retornamos o produto encontrado
         return encontrado
