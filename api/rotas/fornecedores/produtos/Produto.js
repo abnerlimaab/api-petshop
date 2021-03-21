@@ -46,6 +46,55 @@ class Produto {
         //Encaminhamos as propriedades id e fornecedor recebidas na instância de Produto e retornamos o resultado
         return Tabela.remover(this.id, this.fornecedor)
     }
+
+    async carregar() {
+        //Recebe o produto do banco de dados com o id e fornecedor indicado
+        const produto = await Tabela.buscarPorId(this.id, this.fornecedor)
+        //Assimilação de valores obtidos do banco de dados na instância de produto
+        this.titulo = produto.titulo
+        this.preco = produto.preco
+        this.estoque = produto.estoque
+        this.dataCriacao = produto.dataCriacao
+        this.dataAtualizacao = produto.dataAtualizacao
+        this.versao = produto.versao
+    }
+
+    atualizar() {
+        //Valida os dados que podem serão atualizados
+        const dadosParaAtualizar = {}
+        if (typeof this.titulo === 'string' && this.titulo.length > 0) {
+            dadosParaAtualizar.titulo = this.titulo
+        }
+        if (typeof this.preco === 'number' && this.titulo.length > 0) {
+            dadosParaAtualizar.preco = this.preco
+        }
+        if (typeof this.estoque === 'number') {
+            dadosParaAtualizar.estoque = this.estoque
+        }
+        //Caso dadosParaAtualizar esteja vazio, retornaremos um erro
+        if (Object.keys(dadosParaAtualizar).length === 0) {
+            throw new Error('Não foram fornecidos dados para atualizar')
+        }
+
+        return Tabela.atualizar(
+            //Objeto identificador do produto
+            {
+                id: this.id,
+                fornecedor: this.fornecedor
+            },
+            //Objeto de dados para atualizar
+            dadosParaAtualizar
+        )
+    }
+
+    diminuirEstoque() {
+        return Tabela.subtrair(
+            this.id,
+            this.fornecedor,
+            'estoque',
+            this.estoque
+        )
+    }
 }
 
 module.exports = Produto

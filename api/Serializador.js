@@ -87,10 +87,24 @@ class SerializadorErro extends Serializador {
     }
 }
 
+class SerializadorProduto extends Serializador {
+    constructor(contentType, camposExtras) {
+        super()
+        //Determina o contentType da instância
+        this.contentType = contentType
+        //Inclui o id e titulo do produto nos campos públicos da instância e concatena com possíveis campos extras solicitados na requisição
+        this.camposPublicos = ['id', 'titulo'].concat(camposExtras || [])
+        //Tags que serão utilizadas na conversão para XML
+        this.tagSingular = 'produto'
+        this.tagPlural = 'produtos'
+    }
+}
+
 module.exports = {
     Serializador: Serializador,
     SerializadorFornecedor: SerializadorFornecedor,
     SerializadorErro: SerializadorErro,
+    SerializadorProduto: SerializadorProduto,
     //Define os formatos que serão aceitos
     formatosAceitos: ['application/json', 'application/xml']
 }
