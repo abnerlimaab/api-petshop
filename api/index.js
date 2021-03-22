@@ -30,8 +30,20 @@ app.use((req, res, proximo) => {
     proximo()
 })
 
+//Middleware utilizado para ajuste do Headers para o navegador
+app.use((req, res, proximo) => {
+    //Permite o acesso a API pelo navegador a partir do site passado no segundo parâmetro
+    res.set('Access-Control-Allow-Origin', '*')
+    //Segue para o próximo middleware
+    proximo()
+})
+
 const roteador = require('./rotas/fornecedores')
 app.use('/api/fornecedores', roteador)
+
+//Acessa a versão 2.0.0 (SEMVER)
+const roteadorV2 = require('./rotas/fornecedores/rotas.v2')
+app.use('/api/v2/fornecedores', roteadorV2)
 
 app.use((erro, req, res, proximo) => {
     let status = 500

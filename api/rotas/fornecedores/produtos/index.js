@@ -7,6 +7,15 @@ const Produto = require('./Produto')
 //Importa o Serializador de produtos
 const Serializador = require('../../../Serializador').SerializadorProduto
 
+roteador.options('/', (req, res) => {
+    //Define os métodos que serão aceitos
+    res.set('Acces-Control-Allow-Methods', 'GET, POST')
+    //Define os Headers que serão aceitos
+    res.set('Acces-Control-Allow-Headers', 'Content-Type')
+    res.status(204)
+    res.end()
+})
+
 roteador.get('/', async (req, res) => {
     //Carrega a listagem de produtos cadastrados em um determinado fornecedor
     const produtos = await Tabela.listar(req.fornecedor.id)
@@ -51,6 +60,15 @@ roteador.post('/', async (req, res, proximo) => {
         //Em caso de erro, passa para o próximo middleware com o erro como argumento
         proximo(erro)
     }
+})
+
+roteador.options('/:id', (req, res) => {
+    //Define os métodos que serão aceitos
+    res.set('Acces-Control-Allow-Methods', 'DELETE, GET, HEAD, PUT')
+    //Define os Headers que serão aceitos
+    res.set('Acces-Control-Allow-Headers', 'Content-Type')
+    res.status(204)
+    res.end()
 })
 
 roteador.delete('/:id', async (req, res) => {
@@ -158,6 +176,15 @@ roteador.put('/:id', async (req, res, proximo) => {
         //Encaminha o erro para tratamento em nosso middleware da raiz da API
         proximo(erro)
     }
+})
+
+roteador.options('/:id/diminuir-estoque', (req, res) => {
+    //Define os métodos que serão aceitos
+    res.set('Acces-Control-Allow-Methods', 'POST')
+    //Define os Headers que serão aceitos
+    res.set('Acces-Control-Allow-Headers', 'Content-Type')
+    res.status(204)
+    res.end()
 })
 
 roteador.post('/:id/diminuir-estoque', async (req, res, proximo) => {

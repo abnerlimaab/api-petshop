@@ -5,11 +5,23 @@ const SerializadorFornecedor = require('../../Serializador').SerializadorFornece
 
 //Para identificação das rotas, utilizaremos os mesmos métodos http
 
+//Define os cabeçalhos da rota
+roteador.options('/', (req, res) => {
+    //Define os métodos que serão aceitos
+    res.set('Acces-Control-Allow-Methods', 'GET, POST')
+    //Define os Headers que serão aceitos
+    res.set('Acces-Control-Allow-Headers', 'Content-Type')
+    res.status(204)
+    res.end()
+})
+
 //Retorna a lista de fornecedores cadastrados
 roteador.get('/', async (req, res) => {
     const resultados = await TabelaForecedor.listar()
     res.status(200)
-    const serializador = new SerializadorFornecedor(res.getHeader('Content-Type'))
+    const serializador = new SerializadorFornecedor(
+        res.getHeader('Content-Type'),
+        ['empresa'])
     res.send(serializador.serializar(resultados))
 })
 
@@ -24,11 +36,23 @@ roteador.post('/', async (req, res, proximo) => {
         await fornecedor.criar()
         //Após insert, encaminha o fornecedor cadastrado como resposta para o cliente
         res.status(201)
-        const serializador = new SerializadorFornecedor(res.getHeader('Content-Type'))
+        const serializador = new SerializadorFornecedor(
+            res.getHeader('Content-Type'),
+            ['empresa'])
         res.send(serializador.serializar(fornecedor))
     } catch (erro) {
         proximo(erro)
     }
+})
+
+//Define os cabeçalhos da rota
+roteador.options('/:idFornecedor', (req, res) => {
+    //Define os métodos que serão aceitos
+    res.set('Acces-Control-Allow-Methods', 'GET, PUT, DELETE')
+    //Define os Headers que serão aceitos
+    res.set('Acces-Control-Allow-Headers', 'Content-Type')
+    res.status(204)
+    res.end()
 })
 
 //Retorna um fornecedor cadastrado por id
@@ -44,7 +68,7 @@ roteador.get('/:idFornecedor', async (req, res, proximo) => {
         res.status(200)
         const serializador = new SerializadorFornecedor(
             res.getHeader('Content-Type'),
-            ['email', 'dataCriacao', 'dataAtualizacao', 'versao']
+            ['email', 'empresa','dataCriacao', 'dataAtualizacao', 'versao']
             )
         res.send(serializador.serializar(fornecedor))
     } catch (erro) {
